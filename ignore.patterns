@@ -1,0 +1,3 @@
+NUMBER=\d+
+#BILDERSTREIT=Bilderstr.*
+MIRRORSERVER=MirrorS.+

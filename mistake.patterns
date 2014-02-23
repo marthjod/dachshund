@@ -1,0 +1,11 @@
+# !( ", dass" | ", so dass" | ", sodass" | ", ohne dass" )
+DASS_OHNE_KOMMA=(?<!, )(?<!, ohne )(?<!, so)(?<!, so )(dass)
+
+# "Zusammen Setzung"
+# Make sure to (group) these so the highlighter knows what to catch.
+# Marked with leading "multiword:" so checker knows what to highlight.
+multi-word:mid-sentence:KOMPOSITUM_LEERZEICHEN=([A-ZÄÖÜ][A-ZÄÖÜa-zäöüß]+ ?){2,}
+
+ANSCHEINEND?=scheinbar
+
+EINZIGST=einzigst.*
