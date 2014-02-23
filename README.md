@@ -100,11 +100,12 @@ Usage of ./dachshund:
 
 ## Limitations
 
-- Language: _de_DE_; providing other language codes as command-line args is not implemented yet because the _go-aspell_ library panics if a respective language package is missing on the local system.
+- Language: `de_DE`; providing other language codes as command-line args is not implemented yet because the _go-aspell_ library panics if a respective language package is missing on the local system.
 
 ## TODOs
 
 - godoc
 - struct methods' visibility
+- Check for problems with umlauts etc.
 - Rename packages to play nicely with $GOPATH.
 - Find more and tweak patterns.
