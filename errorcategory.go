@@ -1,6 +1,7 @@
 package errorcategory
 
 import (
+	"github.com/wsxiaoys/terminal"
 	"github.com/wsxiaoys/terminal/color"
 )
 
@@ -20,8 +21,10 @@ func NewErrorCategory(kind, color, colorEmph string) *ErrorCategory {
 
 func (e *ErrorCategory) MarkError(expr string) {
 	color.Print(e.colorEmph + expr)
+	terminal.Stdout.Reset()
 }
 
 func (e *ErrorCategory) MarkHint(expr string) {
 	color.Printf(e.color + expr)
+	terminal.Stdout.Reset()
 }
