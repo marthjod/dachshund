@@ -79,6 +79,14 @@ DASS_OHNE_KOMMA=(?<!, )(?<!, ohne )(?<!, so)(?<!, so )(dass)
 ## Building _dachshund_
 
 - `go get` the dependencies.
+
+```bash
+go get github.com/glenn-brown/golang-pkg-pcre/src/pkg/pcre
+sudo apt-get install aspell libaspell-dev aspell-de
+go get github.com/trustmaster/go-aspell
+go get github.com/wsxiaoys/terminal
+```
+
 - Build, install and run _dachshund_:
 
 ```bash
