@@ -18,6 +18,7 @@ type SpellChecker struct {
 	errCat           *errorcategory.ErrorCategory
 	validExprs       map[string]string
 	verbose          bool
+	Matches          int
 }
 
 func NewSpellChecker(langCode string, punctuationChars []string, errCat *errorcategory.ErrorCategory, validExprsFile string, verbose bool) *SpellChecker {
@@ -31,6 +32,7 @@ func NewSpellChecker(langCode string, punctuationChars []string, errCat *errorca
 	sc.punctuationChars = punctuationChars
 	sc.langCode = langCode
 	sc.errCat = errCat
+	sc.Matches = 0
 
 	// Initialize the speller
 	// TODO lang as CLI arg
@@ -57,12 +59,15 @@ func (s *SpellChecker) Check(input string) {
 		exprOK      bool
 	)
 
-	s.errCat.MarkError("\nSpell check\n")
+	hint := s.errCat.MarkHint
+	mark := s.errCat.MarkError
+
+	mark("\n# Spell check\n")
 	if s.verbose {
-		if s.verbose && len(s.validExprs) > 0 {
-			s.errCat.MarkHint("Ignoring matches for these expressions:\n")
+		if len(s.validExprs) > 0 {
+			fmt.Printf("# Ignoring matches for %d expressions:\n", len(s.validExprs))
 			for key, val := range s.validExprs {
-				s.errCat.MarkHint(key + "=" + val + "\n")
+				fmt.Printf("# %s=%s\n", key, val)
 			}
 		}
 		fmt.Println()
@@ -94,7 +99,7 @@ func (s *SpellChecker) Check(input string) {
 					if match {
 						exprOK = true
 						if s.verbose {
-							s.errCat.MarkHint("{" + regexName + "} ")
+							hint("{" + regexName + "} ")
 						}
 						break
 					} else {
@@ -110,7 +115,8 @@ func (s *SpellChecker) Check(input string) {
 		if exprOK {
 			fmt.Print(word + " ")
 		} else {
-			s.errCat.MarkError(word + " ")
+			mark(word + " ")
+			s.Matches++
 		}
 
 	}

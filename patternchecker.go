@@ -37,6 +37,7 @@ type PatternChecker struct {
 	errCat          *errorcategory.ErrorCategory
 	verbose         bool
 	mistakePatterns []MistakePattern
+	Matches         int
 }
 
 func NewPatternChecker(errCat *errorcategory.ErrorCategory, mistakePatternsFile string, verbose bool) *PatternChecker {
@@ -45,6 +46,7 @@ func NewPatternChecker(errCat *errorcategory.ErrorCategory, mistakePatternsFile 
 	c.errCat = errCat
 	c.verbose = verbose
 	c.readPatterns(mistakePatternsFile)
+	c.Matches = 0
 	return c
 }
 
@@ -71,36 +73,43 @@ func (c *PatternChecker) split(input string) []string {
 func (c *PatternChecker) Check(input string) {
 
 	var (
-		splitLines     []string
-		re             pcre.Regexp
-		reErr          *pcre.CompileError
-		matcher        *pcre.Matcher
-		line           string
-		pattern        MistakePattern
-		patternMatched bool
+		splitLines       []string
+		re               pcre.Regexp
+		reErr            *pcre.CompileError
+		matcher          *pcre.Matcher
+		line             string
+		pattern          MistakePattern
+		patterns         []MistakePattern
+		patternMatched   bool
+		patternNames     []string
+		currPatternName  string
+		currPatternAttrs []string
 	)
 
-	hint := c.errCat.MarkHint
-	mark := c.errCat.MarkError
+	patterns = c.mistakePatterns
 
-	mark("\nPattern check\n")
-	if c.verbose && len(c.mistakePatterns) > 0 {
-		if c.verbose {
-			hint("Looking for these mistake patterns: ")
-			for p := range c.mistakePatterns {
-				hint(c.mistakePatterns[p].Name)
+	c.errCat.MarkError("\n# Pattern check\n")
+	if c.verbose && len(patterns) > 0 {
 
-				if len(c.mistakePatterns[p].Attrs) > 0 {
-					hint(" (")
-					for attrName := range c.mistakePatterns[p].Attrs {
-						hint(strings.Replace(attrName, ":", " ", -1))
-					}
-					hint("\b)")
+		fmt.Printf("# Looking for %d mistake patterns:\n", len(patterns))
+
+		for p := range patterns {
+
+			currPatternName = "# " + patterns[p].Name
+
+			if len(patterns[p].Attrs) > 0 {
+				currPatternName += " ("
+				for attrName := range patterns[p].Attrs {
+					currPatternAttrs = append(currPatternAttrs, strings.Replace(attrName, ":", "", -1))
 				}
-				fmt.Print(" ")
+				currPatternName += strings.Join(currPatternAttrs, ", ") + ")"
 			}
+
+			patternNames = append(patternNames, currPatternName)
 		}
-		fmt.Println("\n")
+
+		fmt.Print(strings.Join(patternNames, "\n"))
+		fmt.Println()
 	}
 
 	splitLines = c.split(input)
@@ -110,13 +119,14 @@ func (c *PatternChecker) Check(input string) {
 	for i := range splitLines {
 		line = splitLines[i]
 
-		for p := range c.mistakePatterns {
-			pattern = c.mistakePatterns[p]
+		for p := range patterns {
+			pattern = patterns[p]
 
 			if re, reErr = pcre.Compile(pattern.Pattern, 0); reErr == nil {
 				if matcher = re.MatcherString(line, 0); matcher.Matches() {
 
 					patternMatched = true
+					c.Matches++
 
 					// pattern found in line, scan line again
 					// and highlight position
@@ -141,7 +151,6 @@ func (c *PatternChecker) Check(input string) {
 		}
 
 	}
-	fmt.Println()
 }
 
 func (c *PatternChecker) markMultiTokens(sentence string, pattern MistakePattern, matcher *pcre.Matcher) {
@@ -265,7 +274,7 @@ func (c *PatternChecker) readPatterns(path string) {
 		}
 	}
 
-	if c.verbose {
-		fmt.Printf("Patterns read in: %v\n", c.mistakePatterns)
-	}
+	//if c.verbose {
+	//	fmt.Printf("Patterns read in: %v\n", c.mistakePatterns)
+	//}
 }

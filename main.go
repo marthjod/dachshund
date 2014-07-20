@@ -9,7 +9,15 @@ import (
 	"patternchecker"
 	"spellchecker"
 	"sync"
+	"time"
 )
+
+// Rob Pike says "Measure."
+// http://users.ece.utexas.edu/~adnan/pike.html
+func timeTrack(start time.Time, action string) {
+	elapsed := time.Since(start)
+	fmt.Printf("%s done in %v\n", action, elapsed)
+}
 
 func main() {
 	var (
@@ -24,6 +32,8 @@ func main() {
 		verbose             bool
 		errorCategories     map[string]*errorcategory.ErrorCategory
 	)
+
+	defer timeTrack(time.Now(), "# "+os.Args[0])
 
 	// flag.StringVar(&spellLang, "spell-lang", "de_DE", "GNU aspell language code")
 	// flag.Parse()
@@ -62,4 +72,8 @@ func main() {
 
 	// wait for all goroutines to finish
 	w.Wait()
+
+	fmt.Println("\n")
+	fmt.Printf("# Spell checker found %d matches.\n", spellChecker.Matches)
+	fmt.Printf("# Pattern checker found %d matches.\n", patternChecker.Matches)
 }
